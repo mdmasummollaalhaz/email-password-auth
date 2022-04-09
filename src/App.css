@@ -43,3 +43,12 @@
   border: 2px solid salmon;
   border-radius: 5px;
 }
+.logIn{
+  padding: 15px 30px;
+  width: 20%;
+  margin-top: 10px;
+  border: 2px solid salmon;
+  border-radius: 5px;
+  background: salmon;
+  cursor: pointer;
+}
