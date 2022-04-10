@@ -1,6 +1,12 @@
 import logo from './logo.svg';
 import './App.css';
-import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import {
+  createUserWithEmailAndPassword,
+  getAuth,
+  sendEmailVerification,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+} from 'firebase/auth';
 import app from './firebase.init';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
@@ -50,15 +56,14 @@ function App() {
 
     if (registered) {
       signInWithEmailAndPassword(auth, email, password)
-        .then(result =>{
+        .then(result => {
           const user = result.user;
           console.log(user);
         })
-        .catch(error =>{
+        .catch(error => {
           console.error(error);
           setError(error.message);
-        })
-
+        });
     } else {
       createUserWithEmailAndPassword(auth, email, password)
         .then(result => {
@@ -66,6 +71,7 @@ function App() {
           console.log(user);
           setEmail('');
           setPassword('');
+          verifyEmail();
         })
         .catch(error => {
           console.error(error);
@@ -74,6 +80,22 @@ function App() {
     }
 
     event.preventDefault();
+  }
+
+  const handlePasswordReset = () =>{
+    sendPasswordResetEmail(auth, email)
+      .then(() =>{
+        console.log('Email sent');
+      })
+      .catch()
+  }
+
+  const verifyEmail = () => {
+    sendEmailVerification(auth.currentUser)
+      .then(() => {
+        console.log('Email varification sent');
+      })
+      .catch();
   };
 
   return (
@@ -120,6 +142,8 @@ function App() {
           </Form.Group>
           <p className="text-danger">{error}</p>
 
+          <Button onClick={handlePasswordReset} variant="link">Forget Password?</Button>
+          <br />
           <Button variant="primary" type="submit">
             {registered ? 'Login Now' : 'Register Now'}
           </Button>
