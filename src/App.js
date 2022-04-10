@@ -6,6 +6,7 @@ import {
   sendEmailVerification,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
+  updateProfile,
 } from 'firebase/auth';
 import app from './firebase.init';
 import Form from 'react-bootstrap/Form';
@@ -18,8 +19,14 @@ function App() {
   const [validated, setValidated] = useState(false);
   const [registered, setRegistered] = useState(false);
   const [error, setError] = useState('');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  const handleNameblur = event => {
+    // console.log(event.target.value);
+    setName(event.target.value);
+  };
 
   const handleEmailBlur = event => {
     // console.log(event.target.value);
@@ -72,6 +79,7 @@ function App() {
           setEmail('');
           setPassword('');
           verifyEmail();
+          setUserName();
         })
         .catch(error => {
           console.error(error);
@@ -80,15 +88,25 @@ function App() {
     }
 
     event.preventDefault();
-  }
+  };
 
-  const handlePasswordReset = () =>{
+  const handlePasswordReset = () => {
     sendPasswordResetEmail(auth, email)
-      .then(() =>{
+      .then(() => {
         console.log('Email sent');
       })
-      .catch()
-  }
+      .catch();
+  };
+
+  const setUserName = () => {
+    updateProfile(auth.currentUser, {
+      displayName: name,
+    })
+      .then(() => {
+        console.log('Update name');
+      })
+      .catch();
+  };
 
   const verifyEmail = () => {
     sendEmailVerification(auth.currentUser)
@@ -105,6 +123,21 @@ function App() {
           Please {registered ? 'Login' : 'Register'}
         </h2>
         <Form noValidate validated={validated} onSubmit={handleFormSubmit}>
+          {!registered && (
+            <Form.Group className="mb-3" controlId="formBasicEmail">
+              <Form.Label>Your name</Form.Label>
+              <Form.Control
+                onBlur={handleNameblur}
+                type="text"
+                placeholder="Your name"
+                required
+              />
+              <Form.Control.Feedback type="invalid">
+                Please provide your name.
+              </Form.Control.Feedback>
+            </Form.Group>
+          )}
+
           <Form.Group className="mb-3" controlId="formBasicEmail">
             <Form.Label>Email address</Form.Label>
             <Form.Control
@@ -133,6 +166,7 @@ function App() {
               Please provide a valid password.
             </Form.Control.Feedback>
           </Form.Group>
+
           <Form.Group className="mb-3" controlId="formBasicCheckbox">
             <Form.Check
               onChange={handleRegisteredChange}
@@ -140,9 +174,12 @@ function App() {
               label="Already Registered?"
             />
           </Form.Group>
+          <p className="text-success">{'Success'}</p>
           <p className="text-danger">{error}</p>
 
-          <Button onClick={handlePasswordReset} variant="link">Forget Password?</Button>
+          <Button onClick={handlePasswordReset} variant="link">
+            Forget Password?
+          </Button>
           <br />
           <Button variant="primary" type="submit">
             {registered ? 'Login Now' : 'Register Now'}
